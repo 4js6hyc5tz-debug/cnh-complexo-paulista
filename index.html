@@ -1,0 +1,167 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CET/DETRAN | Complexo Paulista RP</title>
+<style>
+:root{--green:#164b35;--yellow:#e8c94a;--bg:#f2f5f3}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:#24352b}
+header{background:var(--green);color:white;padding:25px 18px}
+header small{color:#d7e8dc;letter-spacing:1px}
+header h1{margin:12px 0;font-size:27px}
+main{max-width:720px;margin:22px auto;padding:0 14px}
+.card{background:white;border-radius:15px;padding:20px;margin-bottom:16px;box-shadow:0 3px 12px #0000000c}
+h2{color:var(--green);margin-top:0}
+button{background:var(--green);color:white;border:0;border-radius:9px;padding:14px;width:100%;font-weight:bold;font-size:15px;margin-top:9px}
+.yellow{background:var(--yellow);color:#203128}
+input,select{width:100%;padding:13px;margin:7px 0 15px;border:1px solid #ccd5cf;border-radius:8px;font-size:16px;background:white}
+label{font-weight:bold;font-size:14px}
+.option{display:block;background:#f2f5f3;padding:11px;border-radius:8px;margin:8px 0;font-weight:normal}
+.option input{width:auto;margin:0 8px 0 0}
+.hidden{display:none}
+.notice{font-size:13px;color:#68756c;line-height:1.5}
+footer{text-align:center;padding:20px;color:#68756c;font-size:12px}
+</style>
+</head>
+<body>
+<header>
+<small>COMPLEXO PAULISTA • ROLEPLAY</small>
+<h1>🛡️ CET / DETRAN</h1>
+Portal de habilitação do cidadão
+</header>
+<main>
+<section class="card">
+<h2>Olá, cidadão!</h2>
+Solicite sua CNH fictícia, faça a prova teórica e consulte seu resultado.
+<button onclick="show('register')">SOLICITAR CNH</button>
+<button class="yellow" onclick="show('test')">FAZER PROVA TEÓRICA</button>
+<button onclick="show('result')">CONSULTAR RESULTADO</button>
+</section>
+
+<section id="register" class="card hidden">
+<h2>Cadastro para CNH</h2>
+<form id="registerForm">
+<label>Nome do personagem</label>
+<input id="character" required placeholder="Nome no jogo">
+<label>ID do jogador</label>
+<input id="playerId" required placeholder="Seu ID no servidor">
+<label>Usuário do Discord (opcional)</label>
+<input id="discord" placeholder="Seu usuário">
+<label>Categoria</label>
+<select id="category"><option>Categoria B - Carro</option></select>
+<button type="submit">SALVAR CADASTRO</button>
+</form>
+<p id="registerMessage"></p>
+<p class="notice">Protótipo: o cadastro fica salvo somente neste navegador. A equipe ainda não recebe os dados.</p>
+</section>
+
+<section id="test" class="card hidden">
+<h2>Prova teórica</h2>
+<p class="notice">São 5 questões. Você precisa acertar pelo menos 4 para passar nesta simulação.</p>
+<form id="testForm">
+<div id="questions"></div>
+<button type="submit">CORRIGIR PROVA</button>
+</form>
+<p id="testMessage"></p>
+</section>
+
+<section id="result" class="card hidden">
+<h2>Consultar resultado</h2>
+<label>Nome do personagem cadastrado</label>
+<input id="searchName" placeholder="Digite o nome no jogo">
+<button onclick="searchResult()">CONSULTAR</button>
+<div id="resultMessage"></div>
+</section>
+
+<section class="card">
+<h2>Etapas da habilitação</h2>
+<p>📋 1. Cadastro do candidato</p>
+<p>📚 2. Prova teórica</p>
+<p>🚗 3. Prova prática com a equipe</p>
+<p>🪪 4. Registro fictício da CNH após aprovação</p>
+</section>
+
+<section class="card">
+<h2>Atendimento</h2>
+<p>Segunda a sexta: 18:30 às 22:30</p>
+<p>Sábados e domingos: 14:30 às 21:45</p>
+<p class="notice">O atendimento depende da disponibilidade dos funcionários.</p>
+</section>
+
+<section id="admin" class="card">
+<h2>Área dos funcionários</h2>
+<p class="notice">A área administrativa com login e gestão dos cadastros será adicionada numa etapa posterior. Esta versão não possui acesso administrativo seguro.</p>
+</section>
+</main>
+<footer>Projeto fictício de roleplay • CET/DETRAN Complexo Paulista</footer>
+
+<script>
+const questions=[
+{q:"1. O que fazer ao encontrar o sinal vermelho?",a:["Acelerar","Parar antes da faixa","Buzinar e seguir"],c:1},
+{q:"2. Perto de uma faixa de pedestres, você deve:",a:["Dar preferência quando necessário","Acelerar","Ignorar a faixa"],c:0},
+{q:"3. Ao ouvir uma sirene de emergência, você deve:",a:["Disputar passagem","Facilitar a passagem com segurança","Parar no meio da via"],c:1},
+{q:"4. Antes de mudar de faixa, você deve:",a:["Sinalizar e verificar se é seguro","Virar sem olhar","Buzinar apenas"],c:0},
+{q:"5. Ao chegar a um cruzamento, você deve:",a:["Passar sem observar","Observar a sinalização e o trânsito","Usar o celular"],c:1}
+];
+
+function show(id){
+document.querySelectorAll("main section[id]").forEach(s=>s.classList.add("hidden"));
+document.getElementById(id).classList.remove("hidden");
+document.getElementById(id).scrollIntoView({behavior:"smooth"});
+}
+
+document.getElementById("questions").innerHTML=questions.map((q,i)=>
+`<p><b>${q.q}</b></p>`+
+q.a.map((a,j)=>`<label class="option"><input type="radio" name="q${i}" value="${j}" required>${a}</label>`).join("")
+).join("");
+
+document.getElementById("registerForm").addEventListener("submit",e=>{
+e.preventDefault();
+const record={
+name:document.getElementById("character").value.trim(),
+id:document.getElementById("playerId").value.trim(),
+discord:document.getElementById("discord").value.trim(),
+category:document.getElementById("category").value,
+status:"Solicitação cadastrada neste navegador"
+};
+localStorage.setItem("cnh_"+record.name.toLowerCase(),JSON.stringify(record));
+document.getElementById("registerMessage").textContent=
+"Cadastro salvo neste aparelho! Ele ainda não foi enviado ao CET/DETRAN.";
+});
+
+document.getElementById("testForm").addEventListener("submit",e=>{
+e.preventDefault();
+let score=0;
+questions.forEach((q,i)=>{
+const selected=document.querySelector(`input[name="q${i}"]:checked`);
+if(selected&&Number(selected.value)===q.c)score++;
+});
+document.getElementById("testMessage").textContent=
+"Resultado: "+score+"/5. "+
+(score>=4?"Aprovado na simulação teórica! Ainda falta a prova prática.":"Não aprovado nesta tentativa. Revise as regras e tente novamente.");
+});
+
+function searchResult(){
+const name=document.getElementById("searchName").value.trim().toLowerCase();
+const saved=localStorage.getItem("cnh_"+name);
+const output=document.getElementById("resultMessage");
+if(!name){output.textContent="Digite o nome do personagem.";return;}
+if(!saved){output.textContent="Nenhum cadastro encontrado neste navegador.";return;}
+const r=JSON.parse(saved);
+output.innerHTML="<p><b>Personagem:</b> "+escapeText(r.name)+
+"</p><p><b>ID:</b> "+escapeText(r.id)+
+"</p><p><b>Categoria:</b> "+escapeText(r.category)+
+"</p><p><b>Status:</b> "+escapeText(r.status)+"</p>";
+}
+
+function escapeText(value){
+const div=document.createElement("div");
+div.textContent=value;
+return div.innerHTML;
+}
+</script>
+</body>
+</html>
